@@ -27,6 +27,19 @@ class Who:
 		# see get_lights() for documentation
 		self.get_lights()
 
+	# search lights by name
+	# raises a NotFound exception if not found
+	# names will be unique.
+	def find_light(self, name):
+		found = False
+		for l in self.lights:
+			if l.name == name:
+				found = True
+				return l
+		if not found:
+			self.logger.warn("Light not found %s" % (name))
+			raise KeyError
+
 	def get_lights(self):
 		try:
 			url = "http://" + self.ip + "/api/" + self.api_token + "/lights"
@@ -54,30 +67,29 @@ class Who:
 		try:
 			self.lights[light].change_state("on")
 		except TypeError:
-			for l in self.lights:
-				if l.name == light:
-					l.change_state("on")
-		except Exception:
+			self.find_light(light).change_state("on")
+		except IndexError:
+			self.logger.exception("Bad light id")
 			raise
+		# except Exception:
+			# raise
 
 	def off(self, light):
 		try:
 			self.lights[light].change_state("off")
 		except TypeError:
-			for l in self.lights:
-				if l.name == light:
-					l.change_state("off")
-		except Exception:
+			self.find_light(light).change_state("off")
+		except IndexError:
+			self.logger.exception("Bad light id")
 			raise
 
 	def toggle(self, light):
 		try:
 			self.lights[light].change_state("toggle")
 		except TypeError:
-			for l in self.lights:
-				if l.name == light:
-					l.change_state("toggle")
-		except Exception:
+			self.find_light(light).change_state("toggle")
+		except IndexError:
+			self.logger.exception("Bad light id")
 			raise
 
 	class Light:
