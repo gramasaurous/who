@@ -2,7 +2,7 @@
 import sys
 import requests
 import who
-
+import time
 
 # Simple test cases to outline how the interface should work
 # and to test the individual methods
@@ -29,15 +29,37 @@ def test_harness(bridge_ip, api_token):
 	# # off
 	# mywho.all_off()
 
-	# # Toggle a single light by name
-	# mywho.toggle("bob")
+	name = "bob"
+	light_id = 1
+	print("on by name: %s" % (name))
+	mywho.on("bob")
+	time.sleep(2)
+	print("off by name: %s" % (name))
+	mywho.off("bob")
+	time.sleep(2)
+	print("toggle by name: %s" % (name))
+	mywho.toggle("bob")
+	time.sleep(2)
 
-	# # Toggle a single light by id
-	# mywho.toggle(1)
+	print("off by id: %d" % (light_id))
+	mywho.off(light_id)
+	time.sleep(2)
 
-	# # Turn on/off a single light
-	# mywho.on("bob")
-	# mywho.on(1)
+	print("on by id: %d" % (light_id))
+	mywho.on(light_id)
+	time.sleep(2)
+
+	print("toggle by id: %d" % (light_id))
+	mywho.toggle(light_id)
+	time.sleep(2)
+	bad name or ID
+	try:
+		mywho.on("bab")
+		mywho.on(5)
+	except:
+		print("bad name")
+		raise
+
 	# mywho.off("bob")
 	# mywho.off(1)
 

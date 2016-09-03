@@ -7,6 +7,7 @@
 
 import logging
 import requests
+import json
 
 # who class defines a connection to a specific hue device and its lights
 class Who:
@@ -32,11 +33,13 @@ class Who:
 			r = requests.get(url, timeout=2)
 			r.raise_for_status()
 			lights = r.json()
-			if lights[0]['error']:
+			# on error r.json() returns a list containing a dict
+			# on success, r.json() just returns a dict
+			if type(lights) == list and lights[0]['error']:
 				self.logger.error("Bad API token")
 				raise Exception, "Bad API token"
-			for light in lights:
-				self.lights.append(self.Light(self, light, lights[light]))
+			for light_id in lights:
+				self.lights.append(self.Light(self, light_id, lights[light_id]))
 		except requests.exceptions.HTTPError:
 			self.logger.error("Get Lights Request recieved error code: " + r.status_code)
 			raise
@@ -45,6 +48,36 @@ class Who:
 			raise
 		except Exception:
 			self.logger.exception("Get Lights Request Caught Exception")
+			raise
+
+	def on(self, light):
+		try:
+			self.lights[light].change_state("on")
+		except TypeError:
+			for l in self.lights:
+				if l.name == light:
+					l.change_state("on")
+		except Exception:
+			raise
+
+	def off(self, light):
+		try:
+			self.lights[light].change_state("off")
+		except TypeError:
+			for l in self.lights:
+				if l.name == light:
+					l.change_state("off")
+		except Exception:
+			raise
+
+	def toggle(self, light):
+		try:
+			self.lights[light].change_state("toggle")
+		except TypeError:
+			for l in self.lights:
+				if l.name == light:
+					l.change_state("toggle")
+		except Exception:
 			raise
 
 	class Light:
@@ -66,4 +99,28 @@ class Who:
 				self.modelid = attrs['modelid']
 			except Exception:
 				self.bridge.logger.error("Light init caught exception. probably bad json deref")
+				raise
+
+		def change_state(self, state='toggle'):
+			if state == 'toggle':
+				new_state = not self.state['on']
+			elif state == 'on':
+				new_state = True
+			elif state == 'off':
+				new_state = False
+			else:
+				raise Exception, "Invalid state."
+			payload = {'on': new_state}
+			try:
+				url = "http://" + self.bridge.ip + "/api/" + self.bridge.api_token + "/lights/" + self.id + "/state"
+				r = requests.put(url, data=json.dumps(payload))
+				r.raise_for_status()
+				ret = r.json()[0]
+				if not ret['success']:
+					self.bridge.logger.error("Update state failed.")
+					raise Exception, "Update state failed."
+				else:
+					self.state['on'] = new_state
+			except Exception:
+				self.bridge.logger.exception("Change State Request Caught exception. %(url)s %(payload)s")
 				raise
