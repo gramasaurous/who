@@ -32,6 +32,9 @@ class Who:
 			r = requests.get(url, timeout=2)
 			r.raise_for_status()
 			lights = r.json()
+			if lights[0]['error']:
+				self.logger.error("Bad API token")
+				raise Exception, "Bad API token"
 			for light in lights:
 				self.lights.append(self.Light(self, light, lights[light]))
 		except requests.exceptions.HTTPError:

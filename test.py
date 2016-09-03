@@ -14,6 +14,8 @@ def test_harness(bridge_ip, api_token):
 	try:
 		mywho = who.Who(bridge_ip, api_token)
 		print(mywho)
+	except "Bad API Token":
+		print("bad api token %s" % (api_token))
 	except requests.exceptions.Timeout:
 		print("probably bad connection to the bridge")
 
