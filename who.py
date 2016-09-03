@@ -11,9 +11,9 @@ import requests
 # who class defines a connection to a specific hue device and its lights
 class Who:
 	def __repr__(self):
-		string = self.ip
+		string = self.ip + "\n"
 		for l in self.lights:
-			string += "\t" + str(l) + "\n"
+			string += "\t %s \n" % (l)
 		return string
 
 	def __init__(self, bridge_ip, api_token, logger=None):
@@ -46,7 +46,9 @@ class Who:
 
 	class Light:
 		def __repr__(self):
-			string = "light #" + self.id + " (" + self.name + ")"
+			state = "on" if self.state["on"] else "off"
+			string = "light id: %s (%s) - %s" % (self.id, self.name, state)
+			# string = "light #" + self.id + " (" + self.name + ")" + 
 			return string
 
 		def __init__(self, bridge, id, attrs):
