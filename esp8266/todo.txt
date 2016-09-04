@@ -1,0 +1,9 @@
+esp8266 support
+
+- simplify, remove as much external deps as possible
+	- requests
+	- logging
+	- json is included in esp8266 micropython so ok
+- build basic HTTP GET, PUT as drop in replacement for requests
+- remove logging requests - replace with simple debug prints 
+
