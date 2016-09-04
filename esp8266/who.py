@@ -6,7 +6,7 @@
 # Simple Python interface for Hue lights
 
 # import logging
-import requests
+import urequests as requests
 import json
 
 # who class defines a connection to a specific hue device and its lights
@@ -46,7 +46,9 @@ class Who:
 		try:
 			url = "http://" + self.ip + "/api/" + self.api_token + "/lights"
 			r = requests.get(url, timeout=2)
-			r.raise_for_status()
+			#r.raise_for_status()
+                        if r.status_code != 200:
+                            raise Exception
 			lights = r.json()
 			# on error r.json() returns a list containing a dict
 			# on success, r.json() just returns a dict
@@ -55,12 +57,12 @@ class Who:
 				raise Exception, "Bad API token"
 			for light_id in lights:
 				self.lights.append(self.Light(self, light_id, lights[light_id]))
-		except requests.exceptions.HTTPError:
+		#except requests.exceptions.HTTPError:
 			# self.logger.error("Get Lights Request recieved error code: " + r.status_code)
-			raise
-		except requests.exceptions.Timeout:
+		#	raise
+		#except requests.exceptions.Timeout:
 			# self.logger.exception("Connection to bridge timed out")
-			raise
+		#	raise
 		except Exception:
 			# self.logger.exception("Get Lights Request Caught Exception")
 			raise
@@ -127,7 +129,9 @@ class Who:
 			try:
 				url = "http://" + self.bridge.ip + "/api/" + self.bridge.api_token + "/lights/" + self.id + "/state"
 				r = requests.put(url, data=json.dumps(payload))
-				r.raise_for_status()
+				#r.raise_for_status()
+                                if r.status_code != 200:
+                                    raise Exception
 				ret = r.json()[0]
 				if not ret['success']:
 					# self.bridge.logger.error("Update state failed.")
