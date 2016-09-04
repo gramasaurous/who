@@ -28,8 +28,8 @@ class Who:
 		self.get_lights()
 
 	# search lights by name
-	# raises a NotFound exception if not found
-	# names will be unique.
+	# raises a KeyError exception if not found
+	# names are unique, so returns first found
 	def find_light(self, name):
 		found = False
 		for l in self.lights:
@@ -40,6 +40,8 @@ class Who:
 			self.logger.warn("Light not found %s" % (name))
 			raise KeyError
 
+	# establishes a connection to the bridge and retrieves list of connected
+	# lights.
 	def get_lights(self):
 		try:
 			url = "http://" + self.ip + "/api/" + self.api_token + "/lights"
@@ -63,6 +65,7 @@ class Who:
 			self.logger.exception("Get Lights Request Caught Exception")
 			raise
 
+	# on/off/toggle work by light_id (ing) or by name (string)
 	def on(self, light):
 		try:
 			self.lights[light].change_state("on")
@@ -71,8 +74,6 @@ class Who:
 		except IndexError:
 			self.logger.exception("Bad light id")
 			raise
-		# except Exception:
-			# raise
 
 	def off(self, light):
 		try:
