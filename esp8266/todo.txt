@@ -8,6 +8,8 @@ esp8266 support
 	- otherwise try to get requests on esp8266 micropython
 	- (it is available on the micropython-lib repo)
 		https://github.com/micropython/micropython-lib
-	-  
+	- UPDATE: was able to get urequests working - as expected,
+		exceptions are handled differently so some things need
+		to be modified
 - remove logging requests - replace with simple debug prints 
 
