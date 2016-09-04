@@ -5,5 +5,9 @@ esp8266 support
 	- logging
 	- json is included in esp8266 micropython so ok
 - build basic HTTP GET, PUT as drop in replacement for requests
+	- otherwise try to get requests on esp8266 micropython
+	- (it is available on the micropython-lib repo)
+		https://github.com/micropython/micropython-lib
+	-  
 - remove logging requests - replace with simple debug prints 
 
