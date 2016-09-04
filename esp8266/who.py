@@ -5,7 +5,7 @@
 # 09/02/2016
 # Simple Python interface for Hue lights
 
-import logging
+# import logging
 import requests
 import json
 
@@ -18,7 +18,7 @@ class Who:
 		return string
 
 	def __init__(self, bridge_ip, api_token, logger=None):
-		self.logger = logger or logging.getLogger(__name__)
+		# self.logger = logger or logging.getLogger(__name__)
 		self.ip = bridge_ip
 		self.api_token = api_token
 		self.lights = []
@@ -37,7 +37,7 @@ class Who:
 				found = True
 				return l
 		if not found:
-			self.logger.warn("Light not found %s" % (name))
+			# self.logger.warn("Light not found %s" % (name))
 			raise KeyError
 
 	# establishes a connection to the bridge and retrieves list of connected
@@ -51,18 +51,18 @@ class Who:
 			# on error r.json() returns a list containing a dict
 			# on success, r.json() just returns a dict
 			if type(lights) == list and lights[0]['error']:
-				self.logger.error("Bad API token")
+				# self.logger.error("Bad API token")
 				raise Exception, "Bad API token"
 			for light_id in lights:
 				self.lights.append(self.Light(self, light_id, lights[light_id]))
 		except requests.exceptions.HTTPError:
-			self.logger.error("Get Lights Request recieved error code: " + r.status_code)
+			# self.logger.error("Get Lights Request recieved error code: " + r.status_code)
 			raise
 		except requests.exceptions.Timeout:
-			self.logger.exception("Connection to bridge timed out")
+			# self.logger.exception("Connection to bridge timed out")
 			raise
 		except Exception:
-			self.logger.exception("Get Lights Request Caught Exception")
+			# self.logger.exception("Get Lights Request Caught Exception")
 			raise
 
 	# on/off/toggle work by light_id (ing) or by name (string)
@@ -72,7 +72,7 @@ class Who:
 		except TypeError:
 			self.find_light(light).change_state("on")
 		except IndexError:
-			self.logger.exception("Bad light id")
+			# self.logger.exception("Bad light id")
 			raise
 
 	def off(self, light):
@@ -81,7 +81,7 @@ class Who:
 		except TypeError:
 			self.find_light(light).change_state("off")
 		except IndexError:
-			self.logger.exception("Bad light id")
+			# self.logger.exception("Bad light id")
 			raise
 
 	def toggle(self, light):
@@ -90,7 +90,7 @@ class Who:
 		except TypeError:
 			self.find_light(light).change_state("toggle")
 		except IndexError:
-			self.logger.exception("Bad light id")
+			# self.logger.exception("Bad light id")
 			raise
 
 	class Light:
@@ -111,7 +111,7 @@ class Who:
 				self.uniqueid = attrs['uniqueid']
 				self.modelid = attrs['modelid']
 			except Exception:
-				self.bridge.logger.error("Light init caught exception. probably bad json deref")
+				# self.bridge.logger.error("Light init caught exception. probably bad json deref")
 				raise
 
 		def change_state(self, state='toggle'):
@@ -130,10 +130,10 @@ class Who:
 				r.raise_for_status()
 				ret = r.json()[0]
 				if not ret['success']:
-					self.bridge.logger.error("Update state failed.")
+					# self.bridge.logger.error("Update state failed.")
 					raise Exception, "Update state failed."
 				else:
 					self.state['on'] = new_state
 			except Exception:
-				self.bridge.logger.exception("Change State Request Caught exception. %(url)s %(payload)s")
+				# self.bridge.logger.exception("Change State Request Caught exception. %(url)s %(payload)s")
 				raise
