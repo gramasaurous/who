@@ -45,16 +45,17 @@ class Who:
 	def get_lights(self):
 		try:
 			url = "http://" + self.ip + "/api/" + self.api_token + "/lights"
-			r = requests.get(url, timeout=2)
+			r = requests.get(url)
 			#r.raise_for_status()
-                        if r.status_code != 200:
-                            raise Exception
+			if r.status_code != 200:
+				raise Exception
 			lights = r.json()
 			# on error r.json() returns a list containing a dict
 			# on success, r.json() just returns a dict
 			if type(lights) == list and lights[0]['error']:
 				# self.logger.error("Bad API token")
-				raise Exception, "Bad API token"
+				# raise Exception, "Bad API token"
+				raise Exception
 			for light_id in lights:
 				self.lights.append(self.Light(self, light_id, lights[light_id]))
 		#except requests.exceptions.HTTPError:
@@ -112,30 +113,38 @@ class Who:
 				self.state = attrs['state']
 				self.uniqueid = attrs['uniqueid']
 				self.modelid = attrs['modelid']
+				self.payload = {'on': self.state['on']}
+				self.url = "http://%s/api/%s/lights/%d/state" % (self.bridge.ip, self.api_token, self.id)
 			except Exception:
 				# self.bridge.logger.error("Light init caught exception. probably bad json deref")
 				raise
 
+		# need to make this callback proof 
+		# - no memory allocation
+		# short and simple might want to create a separate callback
 		def change_state(self, state='toggle'):
 			if state == 'toggle':
-				new_state = not self.state['on']
+				self.payload['on'] = not self.state['on']
 			elif state == 'on':
-				new_state = True
+				self.payload['on'] = True
 			elif state == 'off':
-				new_state = False
+				self.payload['on'] = False
 			else:
-				raise Exception, "Invalid state."
-			payload = {'on': new_state}
+				# raise Exception, "Invalid state."
+				raise Exception
+			# payload = {'on': new_state}
 			try:
-				url = "http://" + self.bridge.ip + "/api/" + self.bridge.api_token + "/lights/" + self.id + "/state"
-				r = requests.put(url, data=json.dumps(payload))
+				# url = "http://%s/api/%s/lights/%d/state" % (self.bridge.ip, self.api_token, self.id)
+				# url = "http://" + self.bridge.ip + "/api/" + self.bridge.api_token + "/lights/" + self.id + "/state"
+				r = requests.put(self.url, data=json.dumps(self.payload))
 				#r.raise_for_status()
-                                if r.status_code != 200:
-                                    raise Exception
-				ret = r.json()[0]
-				if not ret['success']:
+				if r.status_code != 200:
+					raise Exception
+				# ret = r.json()[0]
+				if not r.json()[0]['success']:
 					# self.bridge.logger.error("Update state failed.")
-					raise Exception, "Update state failed."
+					# raise Exception, "Update state failed."
+					raise Exception
 				else:
 					self.state['on'] = new_state
 			except Exception:
