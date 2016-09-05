@@ -12,4 +12,14 @@ esp8266 support
 		exceptions are handled differently so some things need
 		to be modified
 - remove logging requests - replace with simple debug prints 
+- get gpio switch working with interrupt callbacks
 
+update:
+- interrupt callback code has limitations and must be simple
+- one such limitation is no memory allocation
+- i have shifted all memory allocation inside Who.Light.change_status
+	to Light.__init__
+- unfortunately, requests needs to allocate memory so we have options:
+	- don't use interrupts
+	- rewrite requests to accept pre-allocated memory
+	- don't use requests, write a simple HTTP interface
