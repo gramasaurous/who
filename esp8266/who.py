@@ -114,7 +114,9 @@ class Who:
 				self.uniqueid = attrs['uniqueid']
 				self.modelid = attrs['modelid']
 				self.payload = {'on': self.state['on']}
-				self.url = "http://%s/api/%s/lights/%d/state" % (self.bridge.ip, self.api_token, self.id)
+				self.url = "http://%s/api/%s/lights/%s/state" % (self.bridge.ip, self.bridge.api_token, self.id)
+				self.data = json.dumps(self.payload)
+				self.res = requests.Response()
 			except Exception:
 				# self.bridge.logger.error("Light init caught exception. probably bad json deref")
 				raise
@@ -136,17 +138,17 @@ class Who:
 			try:
 				# url = "http://%s/api/%s/lights/%d/state" % (self.bridge.ip, self.api_token, self.id)
 				# url = "http://" + self.bridge.ip + "/api/" + self.bridge.api_token + "/lights/" + self.id + "/state"
-				r = requests.put(self.url, data=json.dumps(self.payload))
+				self.res = requests.put(self.url, self.data)
 				#r.raise_for_status()
-				if r.status_code != 200:
+				if self.res.status_code != 200:
 					raise Exception
 				# ret = r.json()[0]
-				if not r.json()[0]['success']:
+				if not self.res.json()[0]['success']:
 					# self.bridge.logger.error("Update state failed.")
 					# raise Exception, "Update state failed."
 					raise Exception
 				else:
-					self.state['on'] = new_state
+					self.state['on'] = self.payload['on']
 			except Exception:
 				# self.bridge.logger.exception("Change State Request Caught exception. %(url)s %(payload)s")
 				raise
